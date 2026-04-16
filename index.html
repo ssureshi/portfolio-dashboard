@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- UPLOAD SCREEN -->
+<div id="uploadScreen" class="screen active">
+  <div class="upload-bg">
+    <div class="grid-lines"></div>
+  </div>
+  <div class="upload-container">
+    <div class="brand">
+      <span class="brand-icon">◈</span>
+      <h1 class="brand-name">Portfolio<em>Lens</em></h1>
+    </div>
+    <p class="brand-sub">Your personal investment dashboard</p>
+
+    <div class="upload-cards">
+      <div class="upload-card" id="card-zerodha">
+        <div class="card-broker">
+          <span class="broker-dot" style="background:#387ed1"></span>
+          Zerodha
+        </div>
+        <div class="card-label">Holdings (.xlsx)</div>
+        <div class="drop-zone" id="drop-zerodha" onclick="document.getElementById('file-zerodha').click()">
+          <div class="drop-icon">↑</div>
+          <div class="drop-text">Drop or click to upload</div>
+          <div class="drop-hint">Equity + MF Holdings export</div>
+        </div>
+        <input type="file" id="file-zerodha" accept=".xlsx,.xls" style="display:none" onchange="handleFile('zerodha', this)">
+        <div class="file-status" id="status-zerodha"></div>
+      </div>
+
+      <div class="upload-card" id="card-icici">
+        <div class="card-broker">
+          <span class="broker-dot" style="background:#f47920"></span>
+          ICICI Direct
+        </div>
+        <div class="card-label">Holdings (.csv)</div>
+        <div class="drop-zone" id="drop-icici" onclick="document.getElementById('file-icici').click()">
+          <div class="drop-icon">↑</div>
+          <div class="drop-text">Drop or click to upload</div>
+          <div class="drop-hint">Equity holdings export</div>
+        </div>
+        <input type="file" id="file-icici" accept=".csv" style="display:none" onchange="handleFile('icici', this)">
+        <div class="file-status" id="status-icici"></div>
+      </div>
+
+      <div class="upload-card" id="card-vested">
+        <div class="card-broker">
+          <span class="broker-dot" style="background:#00b386"></span>
+          Vested
+        </div>
+        <div class="card-label">Holdings (.xlsx)</div>
+        <div class="drop-zone" id="drop-vested" onclick="document.getElementById('file-vested').click()">
+          <div class="drop-icon">↑</div>
+          <div class="drop-text">Drop or click to upload</div>
+          <div class="drop-hint">US holdings export</div>
+        </div>
+        <input type="file" id="file-vested" accept=".xlsx,.xls" style="display:none" onchange="handleFile('vested', this)">
+        <div class="file-status" id="status-vested"></div>
+      </div>
+    </div>
+
+    <div class="upload-footer">
+      <div class="fx-row">
+        <label class="fx-label">USD/INR rate</label>
+        <input type="number" id="usdInr" value="84" min="50" max="150" step="0.5" class="fx-input">
+      </div>
+      <button class="btn-analyze" id="btnAnalyze" onclick="buildDashboard()" disabled>
+        Analyze Portfolio →
+      </button>
+    </div>
+
+    <p class="privacy-note">◆ All processing happens locally in your browser. No data is sent anywhere.</p>
+  </div>
+</div>
+
+<!-- DASHBOARD SCREEN -->
+<div id="dashScreen" class="screen">
+  <header class="dash-header">
+    <div class="dash-brand">
+      <span class="brand-icon small">◈</span>
+      <span class="dash-title">Portfolio<em>Lens</em></span>
+    </div>
+    <div class="header-meta">
+      <span id="headerDate" class="header-date"></span>
+      <button class="btn-reload" onclick="resetApp()">↺ Upload New Files</button>
+    </div>
+  </header>
+
+  <!-- SUMMARY STRIP -->
+  <div class="summary-strip">
+    <div class="summary-item">
+      <div class="s-label">Total Invested</div>
+      <div class="s-value" id="sumInvested">—</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <div class="s-label">Current Value</div>
+      <div class="s-value" id="sumCurrent">—</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <div class="s-label">Total P&L</div>
+      <div class="s-value" id="sumPL">—</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <div class="s-label">Overall Return</div>
+      <div class="s-value" id="sumReturn">—</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab active" data-tab="overview" onclick="switchTab(this)">Overview</button>
+      <button class="tab" data-tab="indian-stocks" onclick="switchTab(this)">Indian Stocks</button>
+      <button class="tab" data-tab="indian-mf" onclick="switchTab(this)">Indian MFs</button>
+      <button class="tab" data-tab="us" onclick="switchTab(this)">US Holdings</button>
+      <button class="tab" data-tab="movers" onclick="switchTab(this)">Top Movers</button>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- OVERVIEW TAB -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="seg-grid" id="segGrid"></div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">Allocation by segment</div>
+          <div class="chart-legend" id="allocLegend"></div>
+          <div class="chart-wrap"><canvas id="allocChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Invested vs current value</div>
+          <div class="chart-legend">
+            <span><span class="leg-sq" style="background:#4f7cac"></span>Invested</span>
+            <span><span class="leg-sq" style="background:#2ec4a9"></span>Current</span>
+          </div>
+          <div class="chart-wrap"><canvas id="perfChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INDIAN STOCKS TAB -->
+    <div class="tab-panel" id="panel-indian-stocks">
+      <div class="seg-grid" id="stockSegGrid"></div>
+      <div class="table-toolbar">
+        <input class="tbl-search" id="stockSearch" placeholder="Search stocks…" oninput="filterTable('stockTable', this.value)">
+        <div class="sort-hint">Click any column header to sort</div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="data-table" id="stockTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable('stockTable',0)">Name ↕</th>
+              <th onclick="sortTable('stockTable',1)">Symbol ↕</th>
+              <th onclick="sortTable('stockTable',2)" class="num">Qty ↕</th>
+              <th onclick="sortTable('stockTable',3)" class="num">Avg Cost ↕</th>
+              <th onclick="sortTable('stockTable',4)" class="num">CMP ↕</th>
+              <th onclick="sortTable('stockTable',5)" class="num">Value ↕</th>
+              <th onclick="sortTable('stockTable',6)" class="num">P&L ↕</th>
+              <th onclick="sortTable('stockTable',7)" class="num">Return ↕</th>
+              <th class="num">Source</th>
+            </tr>
+          </thead>
+          <tbody id="stockBody"></tbody>
+        </table>
+      </div>
+      <p class="tbl-note">ETF rows are shaded. P&L shown is unrealized only.</p>
+    </div>
+
+    <!-- INDIAN MF TAB -->
+    <div class="tab-panel" id="panel-indian-mf">
+      <div class="seg-grid" id="mfSegGrid"></div>
+      <div class="tbl-wrap">
+        <table class="data-table" id="mfTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable('mfTable',0)">Fund Name ↕</th>
+              <th onclick="sortTable('mfTable',1)">Type ↕</th>
+              <th onclick="sortTable('mfTable',2)" class="num">Units ↕</th>
+              <th onclick="sortTable('mfTable',3)" class="num">Avg NAV ↕</th>
+              <th onclick="sortTable('mfTable',4)" class="num">Curr NAV ↕</th>
+              <th onclick="sortTable('mfTable',5)" class="num">Value ↕</th>
+              <th onclick="sortTable('mfTable',6)" class="num">P&L ↕</th>
+              <th onclick="sortTable('mfTable',7)" class="num">Return ↕</th>
+            </tr>
+          </thead>
+          <tbody id="mfBody"></tbody>
+        </table>
+      </div>
+      <div class="chart-card" style="margin-top:1.5rem">
+        <div class="chart-title">MF return comparison</div>
+        <div class="chart-wrap" style="height:260px"><canvas id="mfBarChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- US TAB -->
+    <div class="tab-panel" id="panel-us">
+      <div class="seg-grid" id="usSegGrid"></div>
+      <div class="table-toolbar">
+        <input class="tbl-search" id="usSearch" placeholder="Search US holdings…" oninput="filterTable('usTable', this.value)">
+        <div class="sort-hint">Click any column header to sort</div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="data-table" id="usTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable('usTable',0)">Name ↕</th>
+              <th onclick="sortTable('usTable',1)">Ticker ↕</th>
+              <th onclick="sortTable('usTable',2)" class="num">Shares ↕</th>
+              <th onclick="sortTable('usTable',3)" class="num">Avg Cost ↕</th>
+              <th onclick="sortTable('usTable',4)" class="num">CMP ↕</th>
+              <th onclick="sortTable('usTable',5)" class="num">Value ↕</th>
+              <th onclick="sortTable('usTable',6)" class="num">P&L ↕</th>
+              <th onclick="sortTable('usTable',7)" class="num">Return ↕</th>
+            </tr>
+          </thead>
+          <tbody id="usBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TOP MOVERS TAB -->
+    <div class="tab-panel" id="panel-movers">
+      <div class="movers-grid">
+        <div class="movers-card">
+          <div class="movers-title gainers">▲ Top Gainers — Indian</div>
+          <div id="indGainers" class="bars-wrap"></div>
+        </div>
+        <div class="movers-card">
+          <div class="movers-title losers">▼ Underperformers — Indian</div>
+          <div id="indLosers" class="bars-wrap"></div>
+        </div>
+        <div class="movers-card">
+          <div class="movers-title gainers">▲ Top Gainers — US</div>
+          <div id="usGainers" class="bars-wrap"></div>
+        </div>
+        <div class="movers-card">
+          <div class="movers-title" style="color:#4f7cac">◈ MF Star Performers</div>
+          <div id="mfMovers" class="bars-wrap"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- dash-body -->
+</div><!-- dashScreen -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="parsers.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>
