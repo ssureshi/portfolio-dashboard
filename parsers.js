@@ -17,16 +17,19 @@ Parsers.zerodha = function(arrayBuffer) {
   const eqSheet = wb.Sheets['Equity'] || wb.Sheets[wb.SheetNames.find(n => n.toLowerCase().includes('equity'))];
   const eqRaw   = XLSX.utils.sheet_to_json(eqSheet, { header: 1, defval: '' });
 
-  // Pull summary from fixed rows (rows 14-17 in 0-indexed = rows 15-18 in sheet)
+  // Pull summary — scan all rows, find label in any col, value in next col
   const summaryEq = {};
   eqRaw.forEach(row => {
-    const r = row.map(String);
-    if (r[1] && r[1].toLowerCase().includes('invested'))      summaryEq.invested = parseFloat(r[2]) || 0;
-    if (r[1] && r[1].toLowerCase().includes('present'))       summaryEq.current  = parseFloat(r[2]) || 0;
-    if (r[1] && r[1].toLowerCase().includes('unrealized p&l') && !r[1].toLowerCase().includes('pct')) summaryEq.pl = parseFloat(r[2]) || 0;
+    for (let ci = 0; ci < row.length - 1; ci++) {
+      const label = String(row[ci] || '').toLowerCase().trim();
+      const val   = parseFloat(row[ci + 1]);
+      if (isNaN(val)) continue;
+      if (label.includes('invested value'))                         summaryEq.invested = val;
+      else if (label.includes('present value'))                     summaryEq.current  = val;
+      else if (label.includes('unrealized p&l') && !label.includes('pct')) summaryEq.pl = val;
+    }
   });
 
-  // Find header row (contains 'Symbol')
   let eqHeaderIdx = eqRaw.findIndex(r => r.some(c => String(c).trim() === 'Symbol'));
   const eqHeaders = eqRaw[eqHeaderIdx] || [];
 
@@ -75,20 +78,29 @@ Parsers.zerodha = function(arrayBuffer) {
   const mfSheet = wb.Sheets['Mutual Funds'] || wb.Sheets[wb.SheetNames.find(n => n.toLowerCase().includes('mutual'))];
   const mfRaw   = XLSX.utils.sheet_to_json(mfSheet, { header: 1, defval: '' });
 
-  // Summary from sheet
+  // Summary from sheet — scan all rows, label in any col, value in next col
   const summaryMF = {};
   mfRaw.forEach(row => {
-    const r = row.map(String);
-    if (r[1] && r[1].toLowerCase().includes('invested'))      summaryMF.invested = parseFloat(r[2]) || 0;
-    if (r[1] && r[1].toLowerCase().includes('present'))       summaryMF.current  = parseFloat(r[2]) || 0;
-    if (r[1] && r[1].toLowerCase().includes('unrealized p&l') && !r[1].toLowerCase().includes('pct')) summaryMF.pl = parseFloat(r[2]) || 0;
-    if (r[1] && r[1].toLowerCase().includes('pct'))           summaryMF.plPct    = parseFloat(r[2]) || 0;
+    for (let ci = 0; ci < row.length - 1; ci++) {
+      const label = String(row[ci] || '').toLowerCase().trim();
+      const val   = parseFloat(row[ci + 1]);
+      if (isNaN(val)) continue;
+      if (label.includes('invested value'))                              summaryMF.invested = val;
+      else if (label.includes('present value'))                          summaryMF.current  = val;
+      else if (label.includes('unrealized p&l') && !label.includes('pct')) summaryMF.pl    = val;
+      else if (label.includes('pct'))                                    summaryMF.plPct    = val;
+    }
   });
 
   let mfHeaderIdx = mfRaw.findIndex(r => r.some(c => String(c).trim() === 'Symbol'));
   const mfHeaders = mfRaw[mfHeaderIdx] || [];
+  // Find which column index 'Symbol' is actually in
+  const mfSymColOffset = mfHeaders.findIndex(c => String(c).trim() === 'Symbol');
 
-  const mfColIdx  = (kw) => mfHeaders.findIndex(h => String(h).toLowerCase().includes(kw.toLowerCase()));
+  const mfColIdx  = (kw) => {
+    const idx = mfHeaders.findIndex(h => String(h).toLowerCase().includes(kw.toLowerCase()));
+    return idx;
+  };
   const mSym  = mfColIdx('symbol');
   const mType = mfColIdx('instrument type');
   const mQty  = mfColIdx('quantity available');
