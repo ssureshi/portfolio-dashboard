@@ -90,7 +90,7 @@ html, body {
   text-transform: uppercase; letter-spacing: 0.08em;
 }
 .broker-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.card-label { font-size: 12px; color: var(--text3); margin-bottom: 1rem; }
+.card-label { font-size: 12px; color: var(--text2); margin-bottom: 1rem; }
 
 .drop-zone {
   border: 1.5px dashed var(--border2);
@@ -139,7 +139,7 @@ html, body {
 
 .privacy-note {
   margin-top: 2.5rem; font-size: 11px;
-  color: var(--text3); text-align: center;
+  color: var(--text2); text-align: center;
   letter-spacing: 0.02em;
 }
 
@@ -218,9 +218,9 @@ html, body {
   background: var(--bg2); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 1rem 1.2rem;
 }
-.seg-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.seg-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
 .seg-value { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 500; color: var(--text); }
-.seg-sub { font-size: 12px; margin-top: 3px; }
+.seg-sub { font-size: 12px; margin-top: 3px; color: var(--text2); }
 
 /* ── CHARTS ── */
 .charts-row {
@@ -250,17 +250,17 @@ html, body {
   font-family: var(--font-body); font-size: 13px;
 }
 .tbl-search:focus { outline: none; border-color: var(--accent); }
-.sort-hint { font-size: 11px; color: var(--text3); }
+.sort-hint { font-size: 11px; color: var(--text2); }
 
 .tbl-wrap { overflow-x: auto; border-radius: var(--radius-lg); border: 1px solid var(--border); }
 .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .data-table th {
   background: var(--bg3); padding: 10px 12px;
   text-align: left; font-size: 11px; font-weight: 600;
-  color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em;
   white-space: nowrap; cursor: pointer; user-select: none;
 }
-.data-table th:hover { color: var(--text2); }
+.data-table th:hover { color: var(--text); }
 .data-table th.num, .data-table td.num { text-align: right; }
 .data-table td {
   padding: 9px 12px;
@@ -286,7 +286,7 @@ html, body {
 .pill-zerodha { background: rgba(56,126,209,0.15); color: #6eaaee; }
 .pill-icici   { background: rgba(244,121,32,0.15);  color: #f4a060; }
 
-.tbl-note { font-size: 11px; color: var(--text3); margin-top: 8px; }
+.tbl-note { font-size: 11px; color: var(--text2); margin-top: 8px; }
 
 /* ── TOP MOVERS ── */
 .movers-grid {
