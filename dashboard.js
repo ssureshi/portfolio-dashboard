@@ -259,7 +259,7 @@ function renderOverview() {
     segCard('US Holdings (INR)',   fmtINR(c.usCurINR), fmtPct(c.usPct), c.usPLINR>=0) +
     segCard('Total P&L',          fmtINR(c.totPL),  fmtPct(c.totPct), c.totPL>=0);
 
-  const allocColors = ['#4f7cac','#2ec4a9','#e8a44a'];
+  const cc = getChartColors(); const allocColors = cc.allocColors;
   const allocData   = [c.indCur, c.mfCur, c.usCurINR];
   const allocLabels = ['Indian Stocks+ETFs','Indian MFs','US Holdings'];
   const total = allocData.reduce((a,b)=>a+b,0);
@@ -280,15 +280,15 @@ function renderOverview() {
     data:{
       labels:['Indian Stocks+ETFs','Indian MFs','US (INR)'],
       datasets:[
-        { label:'Invested', data:[c.indInv, c.mfInv, c.usInvINR], backgroundColor:'#4f7cac' },
-        { label:'Current',  data:[c.indCur, c.mfCur, c.usCurINR], backgroundColor:'#2ec4a9' }
+        { label:'Invested', data:[c.indInv, c.mfInv, c.usInvINR], backgroundColor: getChartColors().blue },
+        { label:'Current',  data:[c.indCur, c.mfCur, c.usCurINR], backgroundColor: getChartColors().gain }
       ]
     },
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{ display:false } },
       scales:{
-        x:{ ticks:{ color:'#8a91a0', font:{size:11} }, grid:{ color:'rgba(255,255,255,0.04)' } },
-        y:{ ticks:{ color:'#8a91a0', font:{size:11}, callback:v=>fmtINR(v) }, grid:{ color:'rgba(255,255,255,0.04)' } }
+        x:{ ticks:{ color: getChartColors().text, font:{size:11} }, grid:{ color: getChartColors().grid } },
+        y:{ ticks:{ color: getChartColors().text, font:{size:11}, callback:v=>fmtINR(v) }, grid:{ color: getChartColors().grid } }
       }
     }
   });
@@ -358,8 +358,8 @@ function renderIndianMFs(mfs) {
                        borderWidth:0, borderRadius:4 }] },
     options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{ display:false } },
-      scales:{ x:{ ticks:{ color:'#8a91a0', callback:v=>v+'%' }, grid:{ color:'rgba(255,255,255,0.04)' } },
-               y:{ ticks:{ color:'#8a91a0', font:{size:12} }, grid:{ display:false } } } }
+      scales:{ x:{ ticks:{ color: getChartColors().text, callback:v=>v+'%' }, grid:{ color: getChartColors().grid } },
+               y:{ ticks:{ color: getChartColors().text, font:{size:12} }, grid:{ display:false } } } }
   });
 }
 
@@ -441,4 +441,51 @@ function sortTable(id, col) {
 
 function destroyChart(id) {
   if (State.charts[id]) { try { State.charts[id].destroy(); } catch(e){} delete State.charts[id]; }
+}
+
+// ── THEME TOGGLE ──
+(function() {
+  // Restore saved preference, default to light
+  const saved = localStorage.getItem('plTheme') || 'light';
+  applyTheme(saved, false);
+})();
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'light' ? 'dark' : 'light', true);
+}
+
+function applyTheme(theme, save) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const isDark  = theme === 'dark';
+  const icon    = isDark ? '☾' : '☀';
+  const label   = isDark ? 'Dark' : 'Light';
+
+  ['Upload','Dash'].forEach(id => {
+    const ic = document.getElementById('themeIcon'  + id); if (ic) ic.textContent = icon;
+    const lb = document.getElementById('themeLabel' + id); if (lb) lb.textContent = label;
+  });
+
+  if (save) localStorage.setItem('plTheme', theme);
+
+  // Redraw charts with correct colors if dashboard is visible
+  if (!document.getElementById('dashScreen').classList.contains('active')) return;
+  if (State.computed) {
+    Object.values(State.charts).forEach(c => { try { c.destroy(); } catch(e){} });
+    State.charts = {};
+    renderOverview();
+    renderIndianMFs(State.data.zerodha.mutualFunds);
+  }
+}
+
+function getChartColors() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    grid:    dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+    text:    dark ? '#8a8278' : '#7a6f62',
+    gain:    dark ? '#2ec4a9' : '#1a7a6e',
+    loss:    dark ? '#e8614a' : '#c0392b',
+    blue:    dark ? '#5b9bd5' : '#4f7cac',
+    allocColors: [dark ? '#4f7cac' : '#3a6fa0', dark ? '#2ec4a9' : '#1a7a6e', dark ? '#e8a44a' : '#c47e2a'],
+  };
 }

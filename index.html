@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +12,17 @@
 
 <!-- UPLOAD SCREEN -->
 <div id="uploadScreen" class="screen active">
-  <div class="upload-bg"><div class="grid-lines"></div></div>
+  <div class="upload-bg"><div class="upload-bg-light"></div><div class="grid-lines"></div></div>
   <div class="upload-container">
+
+    <!-- Top bar: theme toggle -->
+    <div class="upload-topbar">
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleUpload">
+        <span class="toggle-icon" id="themeIconUpload">☀</span>
+        <span class="toggle-label" id="themeLabelUpload">Light</span>
+      </button>
+    </div>
+
     <div class="brand">
       <span class="brand-icon">◈</span>
       <h1 class="brand-name">Portfolio<em>Lens</em></h1>
@@ -22,21 +31,17 @@
 
     <!-- MODE TOGGLE -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="modeManual" onclick="setMode('manual')">
-        ↑ Upload Files
-      </button>
-      <button class="mode-btn" id="modeFolder" onclick="setMode('folder')">
-        ◫ Select Folder
-      </button>
+      <button class="mode-btn active" id="modeManual" onclick="setMode('manual')">↑ Upload Files</button>
+      <button class="mode-btn" id="modeFolder" onclick="setMode('folder')">◫ Select Folder</button>
     </div>
 
-    <!-- MANUAL UPLOAD MODE -->
+    <!-- MANUAL MODE -->
     <div id="manualMode">
       <p class="mode-desc">Upload your 3 broker statement files. Any order — auto-detected.</p>
       <div class="upload-cards">
 
         <div class="upload-card" id="card-zerodha">
-          <div class="card-broker"><span class="broker-dot" style="background:#387ed1"></span>Zerodha</div>
+          <div class="card-broker"><span class="broker-dot" style="background:#2a5f8f"></span>Zerodha</div>
           <div class="card-label">Holdings .xlsx</div>
           <div class="drop-zone" id="drop-zerodha" onclick="document.getElementById('file-zerodha').click()">
             <div class="drop-icon">↑</div>
@@ -48,7 +53,7 @@
         </div>
 
         <div class="upload-card" id="card-icici">
-          <div class="card-broker"><span class="broker-dot" style="background:#f47920"></span>ICICI Direct</div>
+          <div class="card-broker"><span class="broker-dot" style="background:#c05010"></span>ICICI Direct</div>
           <div class="card-label">Holdings .xls or .csv</div>
           <div class="drop-zone" id="drop-icici" onclick="document.getElementById('file-icici').click()">
             <div class="drop-icon">↑</div>
@@ -60,7 +65,7 @@
         </div>
 
         <div class="upload-card" id="card-vested">
-          <div class="card-broker"><span class="broker-dot" style="background:#00b386"></span>Vested</div>
+          <div class="card-broker"><span class="broker-dot" style="background:#1a7a6e"></span>Vested</div>
           <div class="card-label">Holdings .xlsx</div>
           <div class="drop-zone" id="drop-vested" onclick="document.getElementById('file-vested').click()">
             <div class="drop-icon">↑</div>
@@ -76,15 +81,15 @@
 
     <!-- FOLDER MODE -->
     <div id="folderMode" style="display:none">
-      <p class="mode-desc">Select the folder containing your 3 statement files. Broker is auto-detected from file contents.</p>
+      <p class="mode-desc">Select the folder containing your 3 statement files. Broker is auto-detected.</p>
       <div class="folder-zone" id="folderZone" onclick="selectFolder()">
         <div class="folder-icon">◫</div>
         <div class="folder-text">Click to select folder</div>
-        <div class="folder-hint">Works on Chrome & Edge · Folder is never uploaded — read locally only</div>
+        <div class="folder-hint">Chrome & Edge only · Files are read locally — never uploaded</div>
       </div>
       <div id="folderStatus" class="folder-status-grid"></div>
       <div id="folderBrowserNote" class="browser-note" style="display:none">
-        ⚠ Folder access requires Chrome or Edge browser. Please switch browsers or use Upload Files mode.
+        ⚠ Folder access requires Chrome or Edge. Please switch browsers or use Upload Files mode.
       </div>
     </div>
 
@@ -111,6 +116,10 @@
     </div>
     <div class="header-meta">
       <span id="headerDate" class="header-date"></span>
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleDash">
+        <span class="toggle-icon" id="themeIconDash">☀</span>
+        <span class="toggle-label" id="themeLabelDash">Light</span>
+      </button>
       <button class="btn-reload" onclick="resetApp()">↺ Upload New Files</button>
     </div>
   </header>
@@ -136,6 +145,7 @@
   </div>
 
   <div class="dash-body">
+
     <div class="tab-panel active" id="panel-overview">
       <div class="seg-grid" id="segGrid"></div>
       <div class="charts-row">
@@ -148,7 +158,7 @@
           <div class="chart-title">Invested vs current value</div>
           <div class="chart-legend">
             <span><span class="leg-sq" style="background:#4f7cac"></span>Invested</span>
-            <span><span class="leg-sq" style="background:#2ec4a9"></span>Current</span>
+            <span><span class="leg-sq" style="background:#1a9a88"></span>Current</span>
           </div>
           <div class="chart-wrap"><canvas id="perfChart"></canvas></div>
         </div>
@@ -177,7 +187,7 @@
           <tbody id="stockBody"></tbody>
         </table>
       </div>
-      <p class="tbl-note">ETF rows are shaded. P&L shown is unrealized only.</p>
+      <p class="tbl-note">Shaded rows = Zerodha ETFs. P&L shown is unrealized only.</p>
     </div>
 
     <div class="tab-panel" id="panel-indian-mf">
@@ -231,9 +241,10 @@
         <div class="movers-card"><div class="movers-title gainers">▲ Top Gainers — Indian</div><div id="indGainers" class="bars-wrap"></div></div>
         <div class="movers-card"><div class="movers-title losers">▼ Underperformers — Indian</div><div id="indLosers" class="bars-wrap"></div></div>
         <div class="movers-card"><div class="movers-title gainers">▲ Top Gainers — US</div><div id="usGainers" class="bars-wrap"></div></div>
-        <div class="movers-card"><div class="movers-title" style="color:#4f7cac">◈ MF Star Performers</div><div id="mfMovers" class="bars-wrap"></div></div>
+        <div class="movers-card"><div class="movers-title" style="color:var(--accent2)">◈ MF Star Performers</div><div id="mfMovers" class="bars-wrap"></div></div>
       </div>
     </div>
+
   </div>
 </div>
 
