@@ -12,10 +12,9 @@
 
 <!-- UPLOAD SCREEN -->
 <div id="uploadScreen" class="screen active">
-  <div class="upload-bg"><div class="upload-bg-light"></div><div class="grid-lines"></div></div>
+  <div class="upload-bg"><div class="grid-lines"></div></div>
   <div class="upload-container">
 
-    <!-- Top bar: theme toggle -->
     <div class="upload-topbar">
       <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleUpload">
         <span class="toggle-icon" id="themeIconUpload">☀</span>
@@ -31,12 +30,46 @@
 
     <!-- MODE TOGGLE -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="modeManual" onclick="setMode('manual')">↑ Upload Files</button>
-      <button class="mode-btn" id="modeFolder" onclick="setMode('folder')">◫ Select Folder</button>
+      <button class="mode-btn" id="modeDrive"   onclick="setMode('drive')">⊙ Google Drive</button>
+      <button class="mode-btn" id="modeFolder"  onclick="setMode('folder')">◫ Local Folder</button>
+      <button class="mode-btn" id="modeManual"  onclick="setMode('manual')">↑ Upload Files</button>
     </div>
 
-    <!-- MANUAL MODE -->
-    <div id="manualMode">
+    <!-- GOOGLE DRIVE MODE -->
+    <div id="driveMode" style="display:none">
+      <div class="drive-status-card" id="driveStatusCard">
+        <div class="drive-icon">⊙</div>
+        <div class="drive-status-text" id="driveStatusText">Connecting to Google Drive…</div>
+        <div class="drive-status-sub"  id="driveStatusSub">Please wait</div>
+        <div id="driveFileList" class="drive-file-list"></div>
+        <button class="btn-drive-connect" id="btnDriveConnect" onclick="driveSignIn()" style="display:none">
+          Sign in with Google
+        </button>
+        <button class="btn-drive-refresh" id="btnDriveRefresh" onclick="driveLoadFiles()" style="display:none">
+          ↺ Reload Files
+        </button>
+      </div>
+      <p class="mode-desc" style="margin-top:1rem">
+        Reads from <strong>My Drive → Portfolio_Dashboard</strong> automatically.
+      </p>
+    </div>
+
+    <!-- LOCAL FOLDER MODE -->
+    <div id="folderMode" style="display:none">
+      <p class="mode-desc">Select the folder containing your 3 statement files. Broker is auto-detected.</p>
+      <div class="folder-zone" id="folderZone" onclick="selectFolder()">
+        <div class="folder-icon">◫</div>
+        <div class="folder-text">Click to select folder</div>
+        <div class="folder-hint">Chrome & Edge only · Files are read locally — never uploaded</div>
+      </div>
+      <div id="folderStatus" class="folder-status-grid"></div>
+      <div id="folderBrowserNote" class="browser-note" style="display:none">
+        ⚠ Folder access requires Chrome or Edge. Please switch browsers or use Upload Files mode.
+      </div>
+    </div>
+
+    <!-- MANUAL UPLOAD MODE -->
+    <div id="manualMode" style="display:none">
       <p class="mode-desc">Upload your 3 broker statement files. Any order — auto-detected.</p>
       <div class="upload-cards">
 
@@ -53,7 +86,7 @@
         </div>
 
         <div class="upload-card" id="card-icici">
-          <div class="card-broker"><span class="broker-dot" style="background:#c05010"></span>ICICI Direct</div>
+          <div class="card-broker"><span class="broker-dot" style="background:#b43c0a"></span>ICICI Direct</div>
           <div class="card-label">Holdings .xls or .csv</div>
           <div class="drop-zone" id="drop-icici" onclick="document.getElementById('file-icici').click()">
             <div class="drop-icon">↑</div>
@@ -65,7 +98,7 @@
         </div>
 
         <div class="upload-card" id="card-vested">
-          <div class="card-broker"><span class="broker-dot" style="background:#1a7a6e"></span>Vested</div>
+          <div class="card-broker"><span class="broker-dot" style="background:#0e7c6e"></span>Vested</div>
           <div class="card-label">Holdings .xlsx</div>
           <div class="drop-zone" id="drop-vested" onclick="document.getElementById('file-vested').click()">
             <div class="drop-icon">↑</div>
@@ -79,20 +112,6 @@
       </div>
     </div>
 
-    <!-- FOLDER MODE -->
-    <div id="folderMode" style="display:none">
-      <p class="mode-desc">Select the folder containing your 3 statement files. Broker is auto-detected.</p>
-      <div class="folder-zone" id="folderZone" onclick="selectFolder()">
-        <div class="folder-icon">◫</div>
-        <div class="folder-text">Click to select folder</div>
-        <div class="folder-hint">Chrome & Edge only · Files are read locally — never uploaded</div>
-      </div>
-      <div id="folderStatus" class="folder-status-grid"></div>
-      <div id="folderBrowserNote" class="browser-note" style="display:none">
-        ⚠ Folder access requires Chrome or Edge. Please switch browsers or use Upload Files mode.
-      </div>
-    </div>
-
     <!-- FOOTER -->
     <div class="upload-footer">
       <div class="fx-row">
@@ -103,7 +122,7 @@
         Analyze Portfolio →
       </button>
     </div>
-    <p class="privacy-note">◆ All processing happens locally in your browser. No data is sent anywhere.</p>
+    <p class="privacy-note">◆ Files are processed locally in your browser. No data is sent to any server.</p>
   </div>
 </div>
 
@@ -116,6 +135,7 @@
     </div>
     <div class="header-meta">
       <span id="headerDate" class="header-date"></span>
+      <span id="headerSource" class="header-source"></span>
       <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleDash">
         <span class="toggle-icon" id="themeIconDash">☀</span>
         <span class="toggle-label" id="themeLabelDash">Light</span>
@@ -136,11 +156,11 @@
 
   <div class="tabs-wrap">
     <div class="tabs">
-      <button class="tab active" data-tab="overview" onclick="switchTab(this)">Overview</button>
-      <button class="tab" data-tab="indian-stocks" onclick="switchTab(this)">Indian Stocks</button>
-      <button class="tab" data-tab="indian-mf" onclick="switchTab(this)">Indian MFs</button>
-      <button class="tab" data-tab="us" onclick="switchTab(this)">US Holdings</button>
-      <button class="tab" data-tab="movers" onclick="switchTab(this)">Top Movers</button>
+      <button class="tab active" data-tab="overview"       onclick="switchTab(this)">Overview</button>
+      <button class="tab"        data-tab="indian-stocks"  onclick="switchTab(this)">Indian Stocks</button>
+      <button class="tab"        data-tab="indian-mf"      onclick="switchTab(this)">Indian MFs</button>
+      <button class="tab"        data-tab="us"             onclick="switchTab(this)">US Holdings</button>
+      <button class="tab"        data-tab="movers"         onclick="switchTab(this)">Top Movers</button>
     </div>
   </div>
 
@@ -157,8 +177,8 @@
         <div class="chart-card">
           <div class="chart-title">Invested vs current value</div>
           <div class="chart-legend">
-            <span><span class="leg-sq" style="background:#4f7cac"></span>Invested</span>
-            <span><span class="leg-sq" style="background:#1a9a88"></span>Current</span>
+            <span><span class="leg-sq" style="background:#4068a0"></span>Invested</span>
+            <span><span class="leg-sq" style="background:#0e7c6e"></span>Current</span>
           </div>
           <div class="chart-wrap"><canvas id="perfChart"></canvas></div>
         </div>
@@ -169,7 +189,10 @@
       <div class="seg-grid" id="stockSegGrid"></div>
       <div class="table-toolbar">
         <input class="tbl-search" id="stockSearch" placeholder="Search stocks…" oninput="filterTable('stockTable',this.value)">
-        <div class="sort-hint">Click any column header to sort</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="sort-hint">Click column header to sort</div>
+          <button class="btn-reset-sort" id="reset-stockTable" onclick="resetSort('stockTable')">↺ Reset Order</button>
+        </div>
       </div>
       <div class="tbl-wrap">
         <table class="data-table" id="stockTable">
@@ -187,7 +210,7 @@
           <tbody id="stockBody"></tbody>
         </table>
       </div>
-      <p class="tbl-note">Shaded rows = Zerodha ETFs. P&L shown is unrealized only.</p>
+      <p class="tbl-note">Shaded rows = Zerodha ETFs. P&L is unrealized only.</p>
     </div>
 
     <div class="tab-panel" id="panel-indian-mf">
@@ -217,7 +240,10 @@
       <div class="seg-grid" id="usSegGrid"></div>
       <div class="table-toolbar">
         <input class="tbl-search" id="usSearch" placeholder="Search US holdings…" oninput="filterTable('usTable',this.value)">
-        <div class="sort-hint">Click any column header to sort</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="sort-hint">Click column header to sort</div>
+          <button class="btn-reset-sort" id="reset-usTable" onclick="resetSort('usTable')">↺ Reset Order</button>
+        </div>
       </div>
       <div class="tbl-wrap">
         <table class="data-table" id="usTable">
@@ -248,9 +274,12 @@
   </div>
 </div>
 
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="parsers.js"></script>
+<script src="drive.js"></script>
 <script src="dashboard.js"></script>
 </body>
 </html>

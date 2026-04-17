@@ -56,11 +56,14 @@ function getChartColors(){
 // ── MODE ──
 function setMode(mode){
   State.mode = mode;
-  document.getElementById('modeManual').classList.toggle('active', mode==='manual');
-  document.getElementById('modeFolder').classList.toggle('active', mode==='folder');
-  document.getElementById('manualMode').style.display = mode==='manual' ? 'block' : 'none';
-  document.getElementById('folderMode').style.display = mode==='folder'  ? 'block' : 'none';
+  ['drive','folder','manual'].forEach(m => {
+    const btn = document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1));
+    if(btn) btn.classList.toggle('active', m===mode);
+    const div = document.getElementById(m+'Mode');
+    if(div) div.style.display = m===mode ? 'block' : 'none';
+  });
   checkReadyState();
+  if(mode === 'drive') driveInit();
 }
 
 // ── FOLDER MODE ──
@@ -171,6 +174,8 @@ function resetApp(){
     const f=document.getElementById('file-'+b);   if(f) f.value='';
   });
   const fg = document.getElementById('folderStatus'); if(fg) fg.innerHTML='';
+  Drive.token=null; ['zerodha','icici','vested'].forEach(b=>{ State.data[b]=null; State.files[b]=null; });
+  sessionStorage.removeItem('pl_drive_token'); sessionStorage.removeItem('pl_drive_expiry');
   Object.values(State.charts).forEach(c=>{ try{c.destroy();}catch(e){} });
   State.charts={}; State.origRows={};
   document.getElementById('btnAnalyze').disabled=true;
@@ -229,6 +234,7 @@ function buildDashboard(){
 
   document.getElementById('uploadScreen').classList.remove('active');
   document.getElementById('dashScreen').classList.add('active');
+  const srcEl=document.getElementById('headerSource'); if(srcEl) srcEl.textContent = State.mode==='drive'?'Google Drive':State.mode==='folder'?'Local Folder':'Uploaded';
   document.getElementById('headerDate').textContent = 'As of '+
     new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
 
@@ -477,3 +483,8 @@ function resetSort(tableId){
 function destroyChart(id){
   if(State.charts[id]){ try{State.charts[id].destroy();}catch(e){} delete State.charts[id]; }
 }
+
+// ── DEFAULT: start in Google Drive mode ──
+window.addEventListener('DOMContentLoaded', () => {
+  setMode('drive');
+});

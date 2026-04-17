@@ -346,3 +346,62 @@ html,body{
 .tabs-wrap,.tbl-wrap,.dash-body,.upload-bg{
   transition:background 0.25s ease,border-color 0.2s ease,color 0.2s ease,box-shadow 0.2s ease;
 }
+
+/* ══ GOOGLE DRIVE MODE ══ */
+.drive-status-card {
+  background: var(--bg2);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  max-width: 520px;
+  margin: 0 auto;
+}
+.drive-icon {
+  font-size: 2.5rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  animation: drivePulse 2s ease-in-out infinite;
+}
+@keyframes drivePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+.drive-status-text {
+  font-size: 15px; font-weight: 700;
+  color: var(--text); margin-bottom: 6px;
+}
+.drive-status-sub {
+  font-size: 12px; color: var(--text3);
+  font-weight: 500; margin-bottom: 1rem;
+}
+.drive-file-list {
+  display: flex; flex-direction: column; gap: 6px;
+  margin: 1rem 0; text-align: left;
+}
+.btn-drive-connect, .btn-drive-refresh {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 24px; margin-top: 0.5rem;
+  border-radius: var(--radius); border: none;
+  font-family: var(--font-body); font-size: 13px;
+  font-weight: 700; cursor: pointer; transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+.btn-drive-connect {
+  background: var(--accent); color: #fff;
+}
+.btn-drive-connect:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn-drive-refresh {
+  background: var(--bg3); color: var(--text2);
+  border: 1.5px solid var(--border2);
+}
+.btn-drive-refresh:hover { border-color: var(--accent); color: var(--accent); }
+
+/* header source badge */
+.header-source {
+  font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 99px;
+  background: var(--accent-bg); color: var(--accent);
+  font-family: var(--font-mono); letter-spacing: 0.04em;
+}
