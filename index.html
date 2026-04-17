@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Dashboard</title>
+<title>PortfolioLens</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
@@ -12,9 +12,7 @@
 
 <!-- UPLOAD SCREEN -->
 <div id="uploadScreen" class="screen active">
-  <div class="upload-bg">
-    <div class="grid-lines"></div>
-  </div>
+  <div class="upload-bg"><div class="grid-lines"></div></div>
   <div class="upload-container">
     <div class="brand">
       <span class="brand-icon">◈</span>
@@ -22,63 +20,84 @@
     </div>
     <p class="brand-sub">Your personal investment dashboard</p>
 
-    <div class="upload-cards">
-      <div class="upload-card" id="card-zerodha">
-        <div class="card-broker">
-          <span class="broker-dot" style="background:#387ed1"></span>
-          Zerodha
-        </div>
-        <div class="card-label">Holdings (.xlsx)</div>
-        <div class="drop-zone" id="drop-zerodha" onclick="document.getElementById('file-zerodha').click()">
-          <div class="drop-icon">↑</div>
-          <div class="drop-text">Drop or click to upload</div>
-          <div class="drop-hint">Equity + MF Holdings export</div>
-        </div>
-        <input type="file" id="file-zerodha" accept=".xlsx,.xls" style="display:none" onchange="handleFile('zerodha', this)">
-        <div class="file-status" id="status-zerodha"></div>
-      </div>
+    <!-- MODE TOGGLE -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeManual" onclick="setMode('manual')">
+        ↑ Upload Files
+      </button>
+      <button class="mode-btn" id="modeFolder" onclick="setMode('folder')">
+        ◫ Select Folder
+      </button>
+    </div>
 
-      <div class="upload-card" id="card-icici">
-        <div class="card-broker">
-          <span class="broker-dot" style="background:#f47920"></span>
-          ICICI Direct
-        </div>
-        <div class="card-label">Holdings (.csv)</div>
-        <div class="drop-zone" id="drop-icici" onclick="document.getElementById('file-icici').click()">
-          <div class="drop-icon">↑</div>
-          <div class="drop-text">Drop or click to upload</div>
-          <div class="drop-hint">Equity holdings export</div>
-        </div>
-        <input type="file" id="file-icici" accept=".csv" style="display:none" onchange="handleFile('icici', this)">
-        <div class="file-status" id="status-icici"></div>
-      </div>
+    <!-- MANUAL UPLOAD MODE -->
+    <div id="manualMode">
+      <p class="mode-desc">Upload your 3 broker statement files. Any order — auto-detected.</p>
+      <div class="upload-cards">
 
-      <div class="upload-card" id="card-vested">
-        <div class="card-broker">
-          <span class="broker-dot" style="background:#00b386"></span>
-          Vested
+        <div class="upload-card" id="card-zerodha">
+          <div class="card-broker"><span class="broker-dot" style="background:#387ed1"></span>Zerodha</div>
+          <div class="card-label">Holdings .xlsx</div>
+          <div class="drop-zone" id="drop-zerodha" onclick="document.getElementById('file-zerodha').click()">
+            <div class="drop-icon">↑</div>
+            <div class="drop-text">Drop or click to upload</div>
+            <div class="drop-hint">Equity + MF Holdings export</div>
+          </div>
+          <input type="file" id="file-zerodha" accept=".xlsx,.xls" style="display:none" onchange="handleFile('zerodha',this)">
+          <div class="file-status" id="status-zerodha"></div>
         </div>
-        <div class="card-label">Holdings (.xlsx)</div>
-        <div class="drop-zone" id="drop-vested" onclick="document.getElementById('file-vested').click()">
-          <div class="drop-icon">↑</div>
-          <div class="drop-text">Drop or click to upload</div>
-          <div class="drop-hint">US holdings export</div>
+
+        <div class="upload-card" id="card-icici">
+          <div class="card-broker"><span class="broker-dot" style="background:#f47920"></span>ICICI Direct</div>
+          <div class="card-label">Holdings .xls or .csv</div>
+          <div class="drop-zone" id="drop-icici" onclick="document.getElementById('file-icici').click()">
+            <div class="drop-icon">↑</div>
+            <div class="drop-text">Drop or click to upload</div>
+            <div class="drop-hint">Equity holdings export</div>
+          </div>
+          <input type="file" id="file-icici" accept=".xls,.xlsx,.csv" style="display:none" onchange="handleFile('icici',this)">
+          <div class="file-status" id="status-icici"></div>
         </div>
-        <input type="file" id="file-vested" accept=".xlsx,.xls" style="display:none" onchange="handleFile('vested', this)">
-        <div class="file-status" id="status-vested"></div>
+
+        <div class="upload-card" id="card-vested">
+          <div class="card-broker"><span class="broker-dot" style="background:#00b386"></span>Vested</div>
+          <div class="card-label">Holdings .xlsx</div>
+          <div class="drop-zone" id="drop-vested" onclick="document.getElementById('file-vested').click()">
+            <div class="drop-icon">↑</div>
+            <div class="drop-text">Drop or click to upload</div>
+            <div class="drop-hint">US holdings export</div>
+          </div>
+          <input type="file" id="file-vested" accept=".xlsx,.xls" style="display:none" onchange="handleFile('vested',this)">
+          <div class="file-status" id="status-vested"></div>
+        </div>
+
       </div>
     </div>
 
+    <!-- FOLDER MODE -->
+    <div id="folderMode" style="display:none">
+      <p class="mode-desc">Select the folder containing your 3 statement files. Broker is auto-detected from file contents.</p>
+      <div class="folder-zone" id="folderZone" onclick="selectFolder()">
+        <div class="folder-icon">◫</div>
+        <div class="folder-text">Click to select folder</div>
+        <div class="folder-hint">Works on Chrome & Edge · Folder is never uploaded — read locally only</div>
+      </div>
+      <div id="folderStatus" class="folder-status-grid"></div>
+      <div id="folderBrowserNote" class="browser-note" style="display:none">
+        ⚠ Folder access requires Chrome or Edge browser. Please switch browsers or use Upload Files mode.
+      </div>
+    </div>
+
+    <!-- FOOTER -->
     <div class="upload-footer">
       <div class="fx-row">
-        <label class="fx-label">USD/INR rate</label>
+        <label class="fx-label">USD / INR</label>
         <input type="number" id="usdInr" value="84" min="50" max="150" step="0.5" class="fx-input">
       </div>
       <button class="btn-analyze" id="btnAnalyze" onclick="buildDashboard()" disabled>
         Analyze Portfolio →
       </button>
     </div>
-
     <p class="privacy-note">◆ All processing happens locally in your browser. No data is sent anywhere.</p>
   </div>
 </div>
@@ -96,30 +115,16 @@
     </div>
   </header>
 
-  <!-- SUMMARY STRIP -->
   <div class="summary-strip">
-    <div class="summary-item">
-      <div class="s-label">Total Invested</div>
-      <div class="s-value" id="sumInvested">—</div>
-    </div>
+    <div class="summary-item"><div class="s-label">Total Invested</div><div class="s-value" id="sumInvested">—</div></div>
     <div class="summary-divider"></div>
-    <div class="summary-item">
-      <div class="s-label">Current Value</div>
-      <div class="s-value" id="sumCurrent">—</div>
-    </div>
+    <div class="summary-item"><div class="s-label">Current Value</div><div class="s-value" id="sumCurrent">—</div></div>
     <div class="summary-divider"></div>
-    <div class="summary-item">
-      <div class="s-label">Total P&L</div>
-      <div class="s-value" id="sumPL">—</div>
-    </div>
+    <div class="summary-item"><div class="s-label">Total P&L</div><div class="s-value" id="sumPL">—</div></div>
     <div class="summary-divider"></div>
-    <div class="summary-item">
-      <div class="s-label">Overall Return</div>
-      <div class="s-value" id="sumReturn">—</div>
-    </div>
+    <div class="summary-item"><div class="s-label">Overall Return</div><div class="s-value" id="sumReturn">—</div></div>
   </div>
 
-  <!-- TABS -->
   <div class="tabs-wrap">
     <div class="tabs">
       <button class="tab active" data-tab="overview" onclick="switchTab(this)">Overview</button>
@@ -131,8 +136,6 @@
   </div>
 
   <div class="dash-body">
-
-    <!-- OVERVIEW TAB -->
     <div class="tab-panel active" id="panel-overview">
       <div class="seg-grid" id="segGrid"></div>
       <div class="charts-row">
@@ -152,51 +155,45 @@
       </div>
     </div>
 
-    <!-- INDIAN STOCKS TAB -->
     <div class="tab-panel" id="panel-indian-stocks">
       <div class="seg-grid" id="stockSegGrid"></div>
       <div class="table-toolbar">
-        <input class="tbl-search" id="stockSearch" placeholder="Search stocks…" oninput="filterTable('stockTable', this.value)">
+        <input class="tbl-search" id="stockSearch" placeholder="Search stocks…" oninput="filterTable('stockTable',this.value)">
         <div class="sort-hint">Click any column header to sort</div>
       </div>
       <div class="tbl-wrap">
         <table class="data-table" id="stockTable">
-          <thead>
-            <tr>
-              <th onclick="sortTable('stockTable',0)">Name ↕</th>
-              <th onclick="sortTable('stockTable',1)">Symbol ↕</th>
-              <th onclick="sortTable('stockTable',2)" class="num">Qty ↕</th>
-              <th onclick="sortTable('stockTable',3)" class="num">Avg Cost ↕</th>
-              <th onclick="sortTable('stockTable',4)" class="num">CMP ↕</th>
-              <th onclick="sortTable('stockTable',5)" class="num">Value ↕</th>
-              <th onclick="sortTable('stockTable',6)" class="num">P&L ↕</th>
-              <th onclick="sortTable('stockTable',7)" class="num">Return ↕</th>
-              <th class="num">Source</th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th onclick="sortTable('stockTable',0)">Name ↕</th>
+            <th onclick="sortTable('stockTable',1)">Symbol ↕</th>
+            <th onclick="sortTable('stockTable',2)" class="num">Qty ↕</th>
+            <th onclick="sortTable('stockTable',3)" class="num">Avg Cost ↕</th>
+            <th onclick="sortTable('stockTable',4)" class="num">CMP ↕</th>
+            <th onclick="sortTable('stockTable',5)" class="num">Value ↕</th>
+            <th onclick="sortTable('stockTable',6)" class="num">P&L ↕</th>
+            <th onclick="sortTable('stockTable',7)" class="num">Return ↕</th>
+            <th class="num">Source</th>
+          </tr></thead>
           <tbody id="stockBody"></tbody>
         </table>
       </div>
       <p class="tbl-note">ETF rows are shaded. P&L shown is unrealized only.</p>
     </div>
 
-    <!-- INDIAN MF TAB -->
     <div class="tab-panel" id="panel-indian-mf">
       <div class="seg-grid" id="mfSegGrid"></div>
       <div class="tbl-wrap">
         <table class="data-table" id="mfTable">
-          <thead>
-            <tr>
-              <th onclick="sortTable('mfTable',0)">Fund Name ↕</th>
-              <th onclick="sortTable('mfTable',1)">Type ↕</th>
-              <th onclick="sortTable('mfTable',2)" class="num">Units ↕</th>
-              <th onclick="sortTable('mfTable',3)" class="num">Avg NAV ↕</th>
-              <th onclick="sortTable('mfTable',4)" class="num">Curr NAV ↕</th>
-              <th onclick="sortTable('mfTable',5)" class="num">Value ↕</th>
-              <th onclick="sortTable('mfTable',6)" class="num">P&L ↕</th>
-              <th onclick="sortTable('mfTable',7)" class="num">Return ↕</th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th onclick="sortTable('mfTable',0)">Fund Name ↕</th>
+            <th onclick="sortTable('mfTable',1)">Type ↕</th>
+            <th onclick="sortTable('mfTable',2)" class="num">Units ↕</th>
+            <th onclick="sortTable('mfTable',3)" class="num">Avg NAV ↕</th>
+            <th onclick="sortTable('mfTable',4)" class="num">Curr NAV ↕</th>
+            <th onclick="sortTable('mfTable',5)" class="num">Value ↕</th>
+            <th onclick="sortTable('mfTable',6)" class="num">P&L ↕</th>
+            <th onclick="sortTable('mfTable',7)" class="num">Return ↕</th>
+          </tr></thead>
           <tbody id="mfBody"></tbody>
         </table>
       </div>
@@ -206,56 +203,39 @@
       </div>
     </div>
 
-    <!-- US TAB -->
     <div class="tab-panel" id="panel-us">
       <div class="seg-grid" id="usSegGrid"></div>
       <div class="table-toolbar">
-        <input class="tbl-search" id="usSearch" placeholder="Search US holdings…" oninput="filterTable('usTable', this.value)">
+        <input class="tbl-search" id="usSearch" placeholder="Search US holdings…" oninput="filterTable('usTable',this.value)">
         <div class="sort-hint">Click any column header to sort</div>
       </div>
       <div class="tbl-wrap">
         <table class="data-table" id="usTable">
-          <thead>
-            <tr>
-              <th onclick="sortTable('usTable',0)">Name ↕</th>
-              <th onclick="sortTable('usTable',1)">Ticker ↕</th>
-              <th onclick="sortTable('usTable',2)" class="num">Shares ↕</th>
-              <th onclick="sortTable('usTable',3)" class="num">Avg Cost ↕</th>
-              <th onclick="sortTable('usTable',4)" class="num">CMP ↕</th>
-              <th onclick="sortTable('usTable',5)" class="num">Value ↕</th>
-              <th onclick="sortTable('usTable',6)" class="num">P&L ↕</th>
-              <th onclick="sortTable('usTable',7)" class="num">Return ↕</th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th onclick="sortTable('usTable',0)">Name ↕</th>
+            <th onclick="sortTable('usTable',1)">Ticker ↕</th>
+            <th onclick="sortTable('usTable',2)" class="num">Shares ↕</th>
+            <th onclick="sortTable('usTable',3)" class="num">Avg Cost ↕</th>
+            <th onclick="sortTable('usTable',4)" class="num">CMP ↕</th>
+            <th onclick="sortTable('usTable',5)" class="num">Value ↕</th>
+            <th onclick="sortTable('usTable',6)" class="num">P&L ↕</th>
+            <th onclick="sortTable('usTable',7)" class="num">Return ↕</th>
+          </tr></thead>
           <tbody id="usBody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- TOP MOVERS TAB -->
     <div class="tab-panel" id="panel-movers">
       <div class="movers-grid">
-        <div class="movers-card">
-          <div class="movers-title gainers">▲ Top Gainers — Indian</div>
-          <div id="indGainers" class="bars-wrap"></div>
-        </div>
-        <div class="movers-card">
-          <div class="movers-title losers">▼ Underperformers — Indian</div>
-          <div id="indLosers" class="bars-wrap"></div>
-        </div>
-        <div class="movers-card">
-          <div class="movers-title gainers">▲ Top Gainers — US</div>
-          <div id="usGainers" class="bars-wrap"></div>
-        </div>
-        <div class="movers-card">
-          <div class="movers-title" style="color:#4f7cac">◈ MF Star Performers</div>
-          <div id="mfMovers" class="bars-wrap"></div>
-        </div>
+        <div class="movers-card"><div class="movers-title gainers">▲ Top Gainers — Indian</div><div id="indGainers" class="bars-wrap"></div></div>
+        <div class="movers-card"><div class="movers-title losers">▼ Underperformers — Indian</div><div id="indLosers" class="bars-wrap"></div></div>
+        <div class="movers-card"><div class="movers-title gainers">▲ Top Gainers — US</div><div id="usGainers" class="bars-wrap"></div></div>
+        <div class="movers-card"><div class="movers-title" style="color:#4f7cac">◈ MF Star Performers</div><div id="mfMovers" class="bars-wrap"></div></div>
       </div>
     </div>
-
-  </div><!-- dash-body -->
-</div><!-- dashScreen -->
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
