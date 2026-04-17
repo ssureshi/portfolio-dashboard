@@ -1,84 +1,156 @@
-# Portfolio Dashboard
+# PortfolioLens — Personal Investment Dashboard
 
-A personal investment portfolio dashboard. Works entirely in your browser — no data is sent anywhere.
+A private, browser-based portfolio dashboard for tracking Indian and US market investments.
+All processing happens **locally in your browser** — no data is ever sent to any server.
 
-## Supported Brokers
+---
 
-| Broker | File Type | What it reads |
-|--------|-----------|----------------|
-| Zerodha | .xlsx | Equity (ETFs) + Mutual Funds sheets |
-| ICICI Direct | .csv | Equity holdings export |
-| Vested | .xlsx | Holdings sheet (US stocks & ETFs) |
+## Supported Brokers & File Formats
+
+| Broker | File Format | What it reads |
+|--------|-------------|----------------|
+| Zerodha | `.xlsx` | Equity sheet (ETFs) + Mutual Funds sheet |
+| ICICI Direct | `.xls` or `.csv` | Equity holdings export |
+| Vested | `.xlsx` | Holdings sheet (US stocks & ETFs) |
+
+> **Note:** ICICI supports both `.xls` and `.csv` exports. Use `.xls` for consistency with other files.
+> Debt/Bond instruments in Zerodha are automatically excluded from the dashboard.
+
+---
+
+## Features
+
+- **Overview** — Total invested vs current value, allocation donut chart, segment bar chart
+- **Indian Stocks** — All ICICI stocks + Zerodha ETFs, sortable and searchable
+- **Indian MFs** — All Zerodha mutual funds with NAV-based returns and bar chart
+- **US Holdings** — All Vested positions in USD, sorted by return
+- **Top Movers** — Visual bar charts of top gainers and underperformers across all segments
+- **Two upload modes** — Manual file upload or one-click folder selection
+- **Auto-detection** — App identifies which broker each file belongs to automatically
+- **Flexible parsing** — Column name changes by brokers are handled gracefully
+
+---
+
+## How to Use
+
+### Mode 1 — Upload Files (works on all browsers, all devices)
+
+1. Open your dashboard URL
+2. Upload each of the 3 broker files individually
+3. Set the current USD/INR exchange rate
+4. Click **Analyze Portfolio**
+
+### Mode 2 — Select Folder (Chrome & Edge on laptop/desktop only)
+
+Best for regular use — no individual file selection needed.
+
+1. Save all 3 fresh statement files into one local folder
+   (e.g. `Downloads/Portfolio_Dashboard/`)
+2. Open your dashboard URL in Chrome or Edge
+3. Click the **"Select Folder"** tab
+4. Click the folder zone and choose your folder
+5. App auto-detects and loads all 3 files
+6. Set USD/INR rate and click **Analyze Portfolio**
+
+> **Tip:** Name your files consistently so auto-detection works reliably:
+> - `Zerodha_Holdings_DD-Mon-YYYY.xlsx`
+> - `ICICI_Holdings_DD-Mon-YYYY.xls`
+> - `Vested_Holdings_DD-Mon-YYYY.xlsx`
+
+---
 
 ## How to Deploy on GitHub Pages (One-time setup)
 
-### Step 1 — Create a new GitHub repository
+### Step 1 — Create a GitHub repository
 1. Go to https://github.com/new
-2. Name it `portfolio-dashboard` (or any name you like)
-3. Set visibility to **Private** (recommended — keeps your data private)
+2. Name it `portfolio-dashboard`
+3. Visibility: **Public** (required for free GitHub Pages)
 4. Click **Create repository**
 
-### Step 2 — Upload these files
-Upload all four files to the repository root:
+### Step 2 — Upload all 5 files
+Drag and drop onto the GitHub upload page:
 - `index.html`
 - `styles.css`
 - `parsers.js`
 - `dashboard.js`
-
-You can drag-and-drop them directly on the GitHub web interface.
+- `README.md`
 
 ### Step 3 — Enable GitHub Pages
-1. Go to your repository → **Settings** → **Pages**
-2. Under **Source**, select **Deploy from a branch**
-3. Choose branch: `main`, folder: `/ (root)`
-4. Click **Save**
+1. Repository → **Settings** → **Pages**
+2. Source: **Deploy from a branch**
+3. Branch: `main` | Folder: `/ (root)` | Click **Save**
+4. Wait 2 minutes — your URL appears:
+   `https://YOUR-USERNAME.github.io/portfolio-dashboard/`
 
-Your dashboard will be live at:
-`https://YOUR-GITHUB-USERNAME.github.io/portfolio-dashboard/`
-
-GitHub will show the URL in the Pages settings after ~2 minutes.
-
-### Step 4 — Bookmark it
-Save the URL on your phone and laptop. It works on all devices.
+### Step 4 — Bookmark the URL on all your devices
 
 ---
 
-## How to Use (Every Time)
+## How to Update the App
 
-1. Open the URL on any device
-2. Download fresh statements from Zerodha, ICICI, and Vested
-3. Upload all three files to the dashboard
-4. Set the current USD/INR rate
-5. Click **Analyze Portfolio**
+When Nandhita provides updated files (new features or format fixes):
 
----
-
-## How to Update the App (When formats change or you want new features)
-
-1. Get the updated files from Claude (Nandhita)
-2. Go to your GitHub repository
-3. Click the file you want to replace → **Edit** (pencil icon) → paste new code → **Commit**
-4. GitHub Pages auto-updates within ~1 minute
+1. Go to your GitHub repository
+2. Click the file → pencil (edit) icon → paste new code → **Commit changes**
+3. GitHub Pages auto-updates within ~1 minute
 
 ---
 
-## Privacy Notes
+## Planned Enhancements
 
-- The app is **client-side only** — no server, no database, no tracking
-- Your financial data never leaves your browser
-- The GitHub repository stores only the app code, not your data
-- Making the repository **Private** means only you can see the code
-- If you want extra security, you can add GitHub Pages password protection via a third-party service like Cloudflare Access (free tier)
+| Phase | Feature | Status |
+|-------|---------|--------|
+| Phase 1 | Manual file upload | Done |
+| Phase 1 | Local folder selection (Chrome/Edge) | Done |
+| Phase 1 | ICICI `.xls` support | Done |
+| Phase 1 | Auto broker detection | Done |
+| Phase 2 | Google Drive integration | Next |
+| Phase 3 | VS Code + GitHub + Claude Code workflow | Future |
+
+---
+
+## Privacy & Security
+
+- 100% client-side — no server, no database, no analytics, no tracking
+- Financial data is processed in browser memory only — never stored or transmitted
+- GitHub repository contains only app code — never your financial data
+- Data disappears when you close the browser tab (by design)
+- Folder access (Mode 2) is read-only — the app cannot modify your files
 
 ---
 
 ## File Format Resilience
 
-The parsers use **flexible keyword matching** for column names, not exact matches. This means:
+Parsers use flexible keyword matching rather than exact column names:
 - Minor column renames by brokers are handled automatically
-- New columns added by brokers are safely ignored
-- If a major format change breaks parsing, share the new file with Nandhita — it'll be fixed in minutes
+- Extra columns added by brokers are safely ignored
+- Three fallback strategies for ICICI files: true XLS, CSV text, HTML-disguised XLS
+- If a major format change breaks parsing, share the new file — fixed in minutes
+
+---
 
 ## Adding a New Broker in Future
 
-Share the new broker's export file with Nandhita. A new parser module will be added to `parsers.js` and a new upload card to `index.html`. No other files need to change.
+1. Share the new broker's export file with Nandhita
+2. New parser function added to `parsers.js`
+3. New upload card added to `index.html`
+4. Auto-detection logic updated in `parsers.js`
+5. No other files change — fully modular design
+
+---
+
+## Project Structure
+
+```
+portfolio-dashboard/
+├── index.html      — App shell, upload UI, dashboard layout
+├── styles.css      — All styling (dark theme)
+├── parsers.js      — Broker file parsers + auto-detection logic
+├── dashboard.js    — App logic, rendering, charts
+└── README.md       — This file
+```
+
+---
+
+Built with: SheetJS (file parsing), Chart.js (charts), Google Fonts (typography)
+Maintained by: Nandhita (Claude) for Suresh Anna
