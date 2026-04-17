@@ -75,7 +75,7 @@ Parsers.zerodha = function(arrayBuffer) {
   const eqHdr = eqRaw[eqHeaderIdx] || [];
   const ci = (kw) => eqHdr.findIndex(h => String(h).toLowerCase().includes(kw.toLowerCase()));
   const iSym=ci('symbol'), iSec=ci('sector'), iQty=ci('quantity available'),
-        iQtyLT=ci('quantity long'), iAvg=ci('average price'), iClose=ci('previous closing'),
+        iQtyLT=ci('quantity long'), iPledgeM=ci('quantity pledged (margin'), iPledgeL=ci('quantity pledged (loan'), iAvg=ci('average price'), iClose=ci('previous closing'),
         iPL=ci('unrealized p&l');
   const iPLPct = eqHdr.findIndex((h,i) => String(h).toLowerCase().includes('unrealized p&l') && i > iPL);
 
@@ -84,7 +84,7 @@ Parsers.zerodha = function(arrayBuffer) {
     const row = eqRaw[i];
     const sym = String(row[iSym]||'').trim(); if (!sym) continue;
     const sector = String(row[iSec]||'').toUpperCase();
-    const qty  = (parseFloat(row[iQty])||0) + (parseFloat(row[iQtyLT])||0);
+    const qty  = (parseFloat(row[iQty])||0) + (parseFloat(row[iPledgeM])||0) + (parseFloat(row[iPledgeL])||0); // Available + Pledged (LT is subset, not additive)
     const avg  = parseFloat(row[iAvg])||0, close=parseFloat(row[iClose])||0;
     const pl   = parseFloat(row[iPL])||0, plPct=parseFloat(row[iPLPct])||0;
     const item = { symbol:sym, sector, qty, avgPrice:avg, cmp:close,
