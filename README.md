@@ -25,32 +25,47 @@ All processing happens **locally in your browser** — no data is ever sent to a
 - **Indian MFs** — All Zerodha mutual funds with NAV-based returns and bar chart
 - **US Holdings** — All Vested positions in USD, sorted by return
 - **Top Movers** — Visual bar charts of top gainers and underperformers across all segments
-- **Two upload modes** — Manual file upload or one-click folder selection
+- **Three upload modes** — Google Drive, local folder selection, or manual file upload
 - **Auto-detection** — App identifies which broker each file belongs to automatically
 - **Flexible parsing** — Column name changes by brokers are handled gracefully
+- **Light / Dark theme** — Toggle in the header; preference saved across sessions
 
 ---
 
 ## How to Use
 
-### Mode 1 — Upload Files (works on all browsers, all devices)
+### Mode 1 — Google Drive (recommended for regular use)
 
-1. Open your dashboard URL
-2. Upload each of the 3 broker files individually
-3. Set the current USD/INR exchange rate
-4. Click **Analyze Portfolio**
+Files are read directly from a folder named `Portfolio_Dashboard` in your Google Drive root.
 
-### Mode 2 — Select Folder (Chrome & Edge on laptop/desktop only)
+1. Create a folder called `Portfolio_Dashboard` in **My Drive** (not inside any subfolder)
+2. Upload your 3 fresh broker statement files into that folder
+3. Open your dashboard URL and click **⊙ Google Drive**
+4. Sign in with Google when prompted (read-only access, no writes)
+5. App auto-detects and loads all 3 files, then builds the dashboard automatically
+6. Set USD/INR rate if needed and click **Analyze Portfolio**
 
-Best for regular use — no individual file selection needed.
+> **Token caching:** Once signed in, the session token is cached for 55 minutes — no repeated sign-ins needed in the same browser session.
+
+### Mode 2 — Local Folder (Chrome & Edge on laptop/desktop only)
+
+Best when you don't want to use Google Drive.
 
 1. Save all 3 fresh statement files into one local folder
    (e.g. `Downloads/Portfolio_Dashboard/`)
 2. Open your dashboard URL in Chrome or Edge
-3. Click the **"Select Folder"** tab
+3. Click the **◫ Local Folder** tab
 4. Click the folder zone and choose your folder
 5. App auto-detects and loads all 3 files
 6. Set USD/INR rate and click **Analyze Portfolio**
+
+### Mode 3 — Upload Files (works on all browsers, all devices)
+
+1. Open your dashboard URL
+2. Click the **↑ Upload Files** tab
+3. Upload each of the 3 broker files individually
+4. Set the current USD/INR exchange rate
+5. Click **Analyze Portfolio**
 
 > **Tip:** Name your files consistently so auto-detection works reliably:
 > - `Zerodha_Holdings_DD-Mon-YYYY.xlsx`
@@ -67,12 +82,13 @@ Best for regular use — no individual file selection needed.
 3. Visibility: **Public** (required for free GitHub Pages)
 4. Click **Create repository**
 
-### Step 2 — Upload all 5 files
+### Step 2 — Upload all 6 files
 Drag and drop onto the GitHub upload page:
 - `index.html`
 - `styles.css`
 - `parsers.js`
 - `dashboard.js`
+- `drive.js`
 - `README.md`
 
 ### Step 3 — Enable GitHub Pages
@@ -96,7 +112,7 @@ When Nandhita provides updated files (new features or format fixes):
 
 ---
 
-## Planned Enhancements
+## Feature Status
 
 | Phase | Feature | Status |
 |-------|---------|--------|
@@ -104,7 +120,8 @@ When Nandhita provides updated files (new features or format fixes):
 | Phase 1 | Local folder selection (Chrome/Edge) | Done |
 | Phase 1 | ICICI `.xls` support | Done |
 | Phase 1 | Auto broker detection | Done |
-| Phase 2 | Google Drive integration | Next |
+| Phase 1 | Light / Dark theme toggle | Done |
+| Phase 2 | Google Drive integration | Done |
 | Phase 3 | VS Code + GitHub + Claude Code workflow | Future |
 
 ---
@@ -116,6 +133,8 @@ When Nandhita provides updated files (new features or format fixes):
 - GitHub repository contains only app code — never your financial data
 - Data disappears when you close the browser tab (by design)
 - Folder access (Mode 2) is read-only — the app cannot modify your files
+- Google Drive access (Mode 1) is read-only (`drive.readonly` scope) — app cannot write to Drive
+- Google OAuth token is cached in `sessionStorage` only — cleared when the tab is closed
 
 ---
 
@@ -144,13 +163,14 @@ Parsers use flexible keyword matching rather than exact column names:
 ```
 portfolio-dashboard/
 ├── index.html      — App shell, upload UI, dashboard layout
-├── styles.css      — All styling (dark theme)
+├── styles.css      — All styling (light + dark themes)
 ├── parsers.js      — Broker file parsers + auto-detection logic
-├── dashboard.js    — App logic, rendering, charts
+├── dashboard.js    — App logic, rendering, charts, theme, mode switching
+├── drive.js        — Google Drive OAuth + file loading integration
 └── README.md       — This file
 ```
 
 ---
 
-Built with: SheetJS (file parsing), Chart.js (charts), Google Fonts (typography)
+Built with: SheetJS (file parsing), Chart.js (charts), Google Fonts (typography), Google Identity Services (OAuth)
 Maintained by: Nandhita (Claude) for Suresh Anna

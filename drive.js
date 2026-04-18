@@ -133,6 +133,7 @@ async function driveLoadFiles(){
     // 4. Show result
     if(loadedCount === 3){
       driveUI('All 3 files loaded successfully!', Drive.FOLDER_PATH, false, true, rows);
+      State.driveLoadedAt = new Date();
       // Cache token for this session
       sessionStorage.setItem('pl_drive_token', Drive.token);
       sessionStorage.setItem('pl_drive_expiry', Date.now() + 55 * 60 * 1000); // 55 min

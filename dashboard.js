@@ -238,6 +238,16 @@ function buildDashboard(){
   document.getElementById('headerDate').textContent = 'As of '+
     new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
 
+  const noteEl = document.getElementById('driveLoadedNote');
+  if(noteEl && State.mode === 'drive' && State.driveLoadedAt){
+    noteEl.textContent = 'Data loaded from Google Drive on ' +
+      State.driveLoadedAt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) +
+      ' at ' + State.driveLoadedAt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    noteEl.style.display = 'block';
+  } else if(noteEl){
+    noteEl.style.display = 'none';
+  }
+
   renderSummary(totInv,totCur,totPL,totPct);
   renderOverview();
   renderIndianStocks(ic.stocks, z.equityEtfs);
